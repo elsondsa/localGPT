@@ -217,8 +217,11 @@ def retrieval_qa_pipline(device_type, use_history, promptTemplate_type="llama"):
     is_flag=True,
     help="whether to save Q&A pairs to a CSV file (Default is False)",
 )
-
-def main(device_type, show_sources, use_history, model_type, save_qa):
+@click.command()
+@click.option("--device_type", default="cuda" if torch.cuda.is_available() else "cpu", type=click.Choice([...]), help="Device to run on. (Default is cuda)")
+# ... [other click options]
+@click.option("--query", prompt="Enter a query", help="Query to process")
+def main(device_type, show_sources, use_history, model_type, save_qa, query):
     """
     Implements the main information retrieval task for a localGPT.
 
@@ -248,8 +251,6 @@ def main(device_type, show_sources, use_history, model_type, save_qa):
         os.mkdir(MODELS_PATH)
 
     qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type)
-    # Interactive questions and answers
-    query = sys.argv[1] if len(sys.argv) > 1 else "Default Query"
     # Get the answer from the chain
     res = qa(query)
     answer, docs = res["result"], res["source_documents"]
