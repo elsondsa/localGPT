@@ -2,7 +2,8 @@ import os
 import logging
 import torch
 import utils
-import sys
+# import sys
+import pickle
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.llms import HuggingFacePipeline
@@ -173,15 +174,18 @@ def main():
         os.mkdir(MODELS_PATH)
 
     qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type)
-    
-    query = sys.argv[1] if len(sys.argv) > 1 else "Default Query"
-    res = qa(query)
-    answer, docs = res["result"], res["source_documents"]
 
-    print("\n\n> Question:")
-    print(query)
-    print("\n> Answer:")
-    print(answer)
+    with open('qa_pipeline.pkl', 'wb') as f:
+        pickle.dump(qa, f)
+    
+    # query = sys.argv[1] if len(sys.argv) > 1 else "Default Query"
+    # res = qa(query)
+    # answer, docs = res["result"], res["source_documents"]
+
+    # print("\n\n> Question:")
+    # print(query)
+    # print("\n> Answer:")
+    # print(answer)
 
 if __name__ == "__main__":
     main()
