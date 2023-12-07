@@ -250,8 +250,6 @@ def main(device_type, show_sources, use_history, model_type, save_qa):
     qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type)
     # Interactive questions and answers
     query = sys.argv[1] if len(sys.argv) > 1 else "Default Query"
-    if query == "exit":
-        break
     # Get the answer from the chain
     res = qa(query)
     answer, docs = res["result"], res["source_documents"]
