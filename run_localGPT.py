@@ -3,6 +3,7 @@ import logging
 import click
 import torch
 import utils
+import sys
 from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.llms import HuggingFacePipeline
@@ -248,31 +249,30 @@ def main(device_type, show_sources, use_history, model_type, save_qa):
 
     qa = retrieval_qa_pipline(device_type, use_history, promptTemplate_type=model_type)
     # Interactive questions and answers
-    while True:
-        query = input("\nEnter a query: ")
-        if query == "exit":
-            break
-        # Get the answer from the chain
-        res = qa(query)
-        answer, docs = res["result"], res["source_documents"]
+    query = sys.argv[1] if len(sys.argv) > 1 else "Default Query"
+    if query == "exit":
+        break
+    # Get the answer from the chain
+    res = qa(query)
+    answer, docs = res["result"], res["source_documents"]
 
-        # Print the result
-        print("\n\n> Question:")
-        print(query)
-        print("\n> Answer:")
-        print(answer)
+    # Print the result
+    print("\n\n> Question:")
+    print(query)
+    print("\n> Answer:")
+    print(answer)
 
-        if show_sources:  # this is a flag that you can set to disable showing answers.
-            # # Print the relevant sources used for the answer
-            print("----------------------------------SOURCE DOCUMENTS---------------------------")
-            for document in docs:
-                print("\n> " + document.metadata["source"] + ":")
-                print(document.page_content)
-            print("----------------------------------SOURCE DOCUMENTS---------------------------")
-        
-        # Log the Q&A to CSV only if save_qa is True
-        if save_qa:
-            utils.log_to_csv(query, answer)
+    if show_sources:  # this is a flag that you can set to disable showing answers.
+        # # Print the relevant sources used for the answer
+        print("----------------------------------SOURCE DOCUMENTS---------------------------")
+        for document in docs:
+            print("\n> " + document.metadata["source"] + ":")
+            print(document.page_content)
+        print("----------------------------------SOURCE DOCUMENTS---------------------------")
+    
+    # Log the Q&A to CSV only if save_qa is True
+    if save_qa:
+        utils.log_to_csv(query, answer)
 
 
 if __name__ == "__main__":
