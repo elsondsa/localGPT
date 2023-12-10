@@ -1,0 +1,127 @@
+Procedure to prepare a flow represented in a JSON, based on business use-case:
+
+1. The flow is stored in JSON format.
+2. The flow is created using different modules.
+3. Modules are as follows:
+	appStart, freshdesk, zendesk, whatsapp, sms, etc.
+4. Each module has its own set of parameters named by settings, process, output, type and coordinates.
+5. Coordinates is the position(x,y), to indicate the position of a module in a flow (to be represented in UI). The top module (appStart) should be at the top of the canvas(having lower value of y), while appEnd should be at the end of the canvas(having higher value of y)
+6. type is the name of the node (appStart, freshdesk, zendesk, etc)
+7. output["customCodeIds"]["conditionalLink"][0] contains the next module ID to be executed.
+8. settings and process are the parameters of a particular module, whose values are based on the business needs.
+9. Flow starts with appStart plugin, where the "aparty" indicates the unique parameter and "params" indicate the extra parameters coming to the flow.
+10. Flow always ends with appEnd plugin. Except the "coordinates" field, none of the parameters of appEnd will change.
+
+Below is a sample use-case with its corresponding json:
+
+Build a flow where the unique paramter is MSISDN and extra parameters location and bundle. First execute a freshdesk plugin and then a zendesk plugin.
+
+{
+    "appData": {
+        "modules": {
+            "b789727": {
+                "settings": {
+                    "aparty": "MSISDN",
+                    "nodeName": "Start"
+                },
+                "process": {
+                    "cronjob": "5 * * * *",
+                    "params": [
+                        "location", "bundle"
+                    ],
+                    "trigger": "HTTP Trigger"
+                },
+                "output": {
+                    "customCodeIds": {
+                        "conditionalLink": [
+                            "de5fbe9"
+                        ]
+                    }
+                },
+                "type": "appStart",
+                "coordinates": {
+                    "x": 610,
+                    "y": 20
+                }
+            },
+            "63f2adf": {
+                "settings": {},
+                "process": {
+                    "success": {
+                        "code": [],
+                        "message": "",
+                        "nodeName": "End"
+                    },
+                    "customErrors": [
+                        {
+                            "code": [],
+                            "message": ""
+                        }
+                    ],
+                    "defaultError": {
+                        "code": "E9000",
+                        "message": ""
+                    }
+                },
+                "output": {},
+                "type": "appEnd",
+                "coordinates": {
+                    "x": 610,
+                    "y": 360
+                }
+            },
+            "de5fbe9": {
+                "settings": {
+                    "api_key": "",
+                    "domain": "",
+                    "nodeName": "Freshdesk"
+                },
+                "process": {
+                    "type": "Create Ticket",
+                    "subject": "",
+                    "description": "",
+                    "email": "",
+                    "priority": "",
+                    "status": ""
+                },
+                "output": {
+                    "customCodeIds": {
+                        "conditionalLink": [
+                            "8269d17"
+                        ]
+                    }
+                },
+                "coordinates": {
+                    "x": 610,
+                    "y": 120
+                },
+                "type": "freshdesk"
+            },
+            "8269d17": {
+                "settings": {
+                    "api_key": "",
+                    "domain": "",
+                    "email": "",
+                    "nodeName": "Zendesk"
+                },
+                "process": {
+                    "type": "Create Ticket",
+                    "subject": "",
+                    "description": ""
+                },
+                "output": {
+                    "customCodeIds": {
+                        "conditionalLink": [
+                            "63f2adf"
+                        ]
+                    }
+                },
+                "coordinates": {
+                    "x": 610,
+                    "y": 230
+                },
+                "type": "zendesk"
+            }
+        }
+    }
+}
